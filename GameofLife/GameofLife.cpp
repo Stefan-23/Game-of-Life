@@ -1,10 +1,13 @@
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include <sstream>
 
+#define INPUT_FILE "gameoflife_input.txt"
 
 using namespace std;
 
-const int GRID_SIZE = 40;
+const int GRID_SIZE = 25;
 
 void firstInit(vector<vector<bool> >&);
 void secondInit(vector<vector<bool> >&);
@@ -19,7 +22,7 @@ int getState(bool, int);
 int showMenu()
 {
 
-
+    //make one file with patterns
 
     cout << "\nPlease chooes which seed pattern to start from:" << endl;
     cout << "    1. Square " << endl;
@@ -38,70 +41,94 @@ int showMenu()
 int main()
 
 {
+    string filename;
+    string rd;
+    int x, y, n;
+
     cout << "Starting Game Of Life " << endl;
 
-    int pattern = showMenu();
+    //int pattern = showMenu();
 
     int numberGenerations = 10;
-    cout << "Please Enter the number of generations:" << endl;
-    cin >> numberGenerations;
+    cout << "Please Enter the number of generations or type 'read' to read cells from file::" << endl;
+    cin >> rd;
+    //cin >> numberGenerations;
 
     // second array using vectors
-    vector<vector<bool> > theGrid(GRID_SIZE, vector<bool>(GRID_SIZE, 0));       
-    vector<vector<bool> > tmpGrid(GRID_SIZE, vector<bool>(GRID_SIZE, 0));       
+    vector<vector<bool> > theGrid(GRID_SIZE, vector<bool>(GRID_SIZE, 0));
+    vector<vector<bool> > tmpGrid(GRID_SIZE, vector<bool>(GRID_SIZE, 0));
 
-    switch (pattern)
+    //remove switch 
+    if (rd == "read")
     {
-    case 1: firstInit(theGrid);
-        break;
-
-    case 2: secondInit(theGrid);
-        break;
-
-    case 3: thirdInit(theGrid);
-        break;
-
-    case 4: fourthInit(theGrid);
-        break;
-
-    default:firstInit
-           (theGrid);
-        break;
-    }
-
-    printGrid(theGrid);
-    cout << "Simulation starting in soon" << endl;
-    
-
-    for (int x = 0; x < numberGenerations; x++)                   // Begin Game
-    {
-        //For each cell
-        for (int i = 0; i < GRID_SIZE; i++)
+        while (true)
         {
-            for (int j = 0; j < GRID_SIZE; j++)
-            {
 
-                int local_n = getNeighbours(i, j, theGrid);         
-                bool survival = getState(theGrid[i][j], local_n);   
-                tmpGrid[i][j] = survival;                           
+            cout << "Enter name of file to read from: " << endl;
+            cin >> filename;
+
+            ifstream readfile(filename);
+            if (readfile.is_open())
+            {
+                string fileline, xx, yy;
+
+                while (getline(readfile, fileline))
+                {
+                    stringstream ss(fileline);
+
+                    getline(ss, xx, ' ');
+                    getline(ss, yy, ' ');
+                    //Ctr + D
+
+                    cout << xx << endl;
+                    cout << yy << endl;
+
+                    x = stoi(xx); //tamo nije INT // prvo uradi sa 0 i 1 pa onda sa drugim boardom
+                    y = stoi(yy);
+
+                    theGrid[x][y] = true;
+                }
 
             }
+            else {
+                cout << "No such file, try again." << endl;
+            }
         }
-        printGrid(tmpGrid);                                         
-        theGrid = tmpGrid;                                         
-
-                                               
+        printGrid(theGrid);
+        cout << "Simulation starting in soon" << endl;
     }
+    else
+    {
 
-    return 0;
+        for (int x = 0; x < numberGenerations; x++)                   // Begin Game
+        {
+            //For each cell
+            for (int i = 0; i < GRID_SIZE; i++)
+            {
+                for (int j = 0; j < GRID_SIZE; j++)
+                {
+
+                    int local_n = getNeighbours(i, j, theGrid);
+                    bool survival = getState(theGrid[i][j], local_n);
+                    tmpGrid[i][j] = survival;
+
+                }
+            }
+            printGrid(tmpGrid);
+            theGrid = tmpGrid;
+
+        }
+
+        return 0;
+    }
 }
 
-void firstInit(vector<vector<bool> >& grid)
+void firstInit(vector<vector<bool> >& theGrid)
 {
-    grid[1][1] = 1;
-    grid[1][2] = 1;
-    grid[2][1] = 1;
-    grid[2][2] = 1;
+    theGrid[1][1] = 1;
+    theGrid[1][2] = 1;
+    theGrid[2][1] = 1;
+    theGrid[2][2] = 1;
 
     cout << "Set one." << endl;
 }
